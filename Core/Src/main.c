@@ -21,6 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "string.h"
 
 /* USER CODE END Includes */
 
@@ -53,7 +54,7 @@ uint8_t Read[4];
 uint8_t State = 0;
 uint8_t Diff = 0;
 uint8_t stop;
-uint8_t index = 0;
+uint8_t indexx = 0;
 uint8_t Check = 0;
 
 uint8_t memRead[3];
@@ -140,60 +141,57 @@ int main(void)
 		  {
 			  Diff = 100;
 			  State = 2;
-			  memset(Read, 0, sizeof(Read));
 		  }
 
 		  else if (data == 50)
 		  {
 			  Diff = 50;
 			  State = 2;
-			  memset(Read, 0, sizeof(Read));
 		  }
 
 		  else if (data == 51)
 		  {
 			  Diff = 10;
 			  State = 2;
-			  memset(Read, 0, sizeof(Read));
 		  }
 	  }
 
 	  else if (State == 2)
 	  {
-
+		  memset(Read, 0, sizeof(Read));
 		  for (int i = 1; i < 10; i++)
 		  {
-			  if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == RESET && stop == 0)
+			  if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_RESET && stop == 0)
 			  {
 				  stop = 1;
 			  }
 
-			  else if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == SET && stop == 1)
+			  else if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET && stop == 1)
 			  {
-				  slot_mem[index] = slot;
+				  slot_mem[indexx] = slot;
 				  stop = 0;
-				  index++;
+				  indexx++;
 			  }
 
-			  else if (index == 3)
+			  else if (indexx == 3)
 			  {
 				  State = 3;
 			  }
 
 			  else
 			  {
-				  if (index == 0)
+				  if (indexx == 0)
 				  {
 					  slot_mem[0] = i;
 					  slot_mem[1] = i;
 					  slot_mem[2] = i;
 				  }
-				  else if (index == 1)
+				  else if (indexx == 1)
 				  {
 					  slot_mem[1] = i;
 					  slot_mem[2] = i;
 				  }
-				  else if (index == 2)
+				  else if (indexx == 2)
 				  {
 					  slot_mem[2] = i;
 				  }
@@ -220,7 +218,7 @@ int main(void)
 		  }
 	  }
 
-	  if (index == 3 && State == 3)
+	  if (indexx == 3 && State == 3)
 	  {
 		  if (hi2c1.State == HAL_I2C_STATE_READY)
 		  {
@@ -234,13 +232,13 @@ int main(void)
 			  HAL_I2C_Mem_Read_IT(&hi2c1, EEPROM_ADDR, 0x2c, I2C_MEMADD_SIZE_16BIT, memRead, 3);
 	  	  }
 
-	  	  index = 0;
+	  	  indexx = 0;
 	  	  Check = 1;
   	  }
 
 	  if (Check == 1)
 	  {
-		  if (memRead[0] == memRead[1] && memRead[0] == memRead[2])
+		  if (slot_mem[0] == slot_mem[1] && slot_mem[0] == slot_mem[2])
 		  {
 			  uint8_t text[] = "You're Winner!!";
 			  HAL_UART_Transmit_DMA(&hlpuart1, text, sizeof(text));
