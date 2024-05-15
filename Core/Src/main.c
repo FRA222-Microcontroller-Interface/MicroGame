@@ -56,11 +56,6 @@ uint8_t stop;
 uint8_t index = 0;
 uint8_t Check = 0;
 
-uint8_t Check1;
-uint8_t Check2;
-uint8_t Check3;
-
-uint8_t mem[3] = {0,0,0};
 uint8_t memRead[3];
 
 uint8_t slot;
@@ -115,6 +110,11 @@ int main(void)
   MX_LPUART1_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+  uint8_t newline[] = "\r\n";
+  HAL_UART_Transmit(&hlpuart1, newline, sizeof(newline) - 1, 10);
+
+  uint8_t text[] = "Enter Difficulty from 1 - 3";
+  HAL_UART_Transmit(&hlpuart1, text, 28, 10);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -126,8 +126,6 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  if (State == 0)
 	  {
-		  uint8_t text[] = "Enter Difficulty from 1 - 3";
-		  HAL_UART_Transmit(&hlpuart1, text, 28, 10);
 		  State = 1;
 	  }
 	  else if (State == 1)
@@ -145,13 +143,13 @@ int main(void)
 		  }
 		  else if (data == 50)
 		  {
-			  Diff = 10;
+			  Diff = 50;
 			  State = 2;
 			  memset(Read, 0, sizeof(Read));
 		  }
 		  else if (data == 51)
 		  {
-			  Diff = 1;
+			  Diff = 10;
 			  State = 2;
 			  memset(Read, 0, sizeof(Read));
 		  }
@@ -172,15 +170,50 @@ int main(void)
 				  stop = 0;
 				  index++;
 			  }
+			  else if (index == 3)
+			  {
+				  State = 3;
+			  }
 			  else
 			  {
+				  if (index == 0)
+				  {
+					  slot_mem[0] = i;
+					  slot_mem[1] = i;
+					  slot_mem[2] = i;
+				  }
+				  else if (index == 1)
+				  {
+					  slot_mem[1] = i;
+					  slot_mem[2] = i;
+				  }
+				  else if (index == 2)
+				  {
+					  slot_mem[2] = i;
+				  }
+
 				  slot = i;
+				  uint8_t data;
+				  data = slot_mem[0] + '0';
+				  HAL_UART_Transmit(&hlpuart1, &data, sizeof(data), 10);
+				  uint8_t tab[] = "\t";
+				  HAL_UART_Transmit(&hlpuart1, tab, 1, 10);
+
+				  data = slot_mem[1] + '0';
+				  HAL_UART_Transmit(&hlpuart1, &data, sizeof(data), 10);
+				  HAL_UART_Transmit(&hlpuart1, tab, 1, 10);
+
+				  data = slot_mem[2] + '0';
+				  HAL_UART_Transmit(&hlpuart1, &data, sizeof(data), 10);
+
+				  uint8_t newline[] = "\r\n";
+				  HAL_UART_Transmit(&hlpuart1, newline, sizeof(newline) - 1, 10);
 				  HAL_Delay(Diff);
 			  }
 		  }
 	  }
 
-	  if (index == 3)
+	  if (index == 3 && State == 3)
 	  {
 		  if (hi2c1.State == HAL_I2C_STATE_READY)
 		  {
@@ -196,23 +229,18 @@ int main(void)
 
 	  	  index = 0;
 	  	  Check = 1;
-	  	  State = 3;
   	  }
 
 	  if (Check == 1)
 	  {
-		  Check1 = memRead[0];
-		  Check2 = memRead[1];
-		  Check3 = memRead[2];
-
-		  if (Check1 == Check2 && Check1 == Check3)
+		  if (slot_mem[0] == slot_mem[1] && slot_mem[0] == slot_mem[2])
 		  {
 			  uint8_t text[] = "You're Winner!!";
 			  HAL_UART_Transmit_DMA(&hlpuart1, text, sizeof(text));
 		  }
 		  else
 		  {
-			  uint8_t text[] = "Try Again!!";
+			  uint8_t text[] = "Try Again!! -- Press Reset Button";
 			  HAL_UART_Transmit_DMA(&hlpuart1, text, sizeof(text));
 		  }
 		  Check = 0;
