@@ -128,6 +128,7 @@ int main(void)
 	  {
 		  State = 1;
 	  }
+
 	  else if (State == 1)
 	  {
 		  Read[4] = '\0';
@@ -141,22 +142,25 @@ int main(void)
 			  State = 2;
 			  memset(Read, 0, sizeof(Read));
 		  }
+
 		  else if (data == 50)
 		  {
 			  Diff = 50;
 			  State = 2;
 			  memset(Read, 0, sizeof(Read));
 		  }
+
 		  else if (data == 51)
 		  {
 			  Diff = 10;
 			  State = 2;
 			  memset(Read, 0, sizeof(Read));
 		  }
-
 	  }
+
 	  else if (State == 2)
 	  {
+
 		  for (int i = 1; i < 10; i++)
 		  {
 			  if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == RESET && stop == 0)
@@ -170,10 +174,12 @@ int main(void)
 				  stop = 0;
 				  index++;
 			  }
+
 			  else if (index == 3)
 			  {
 				  State = 3;
 			  }
+
 			  else
 			  {
 				  if (index == 0)
@@ -194,6 +200,7 @@ int main(void)
 
 				  slot = i;
 				  uint8_t data;
+
 				  data = slot_mem[0] + '0';
 				  HAL_UART_Transmit(&hlpuart1, &data, sizeof(data), 10);
 				  uint8_t tab[] = "\t";
@@ -233,7 +240,7 @@ int main(void)
 
 	  if (Check == 1)
 	  {
-		  if (slot_mem[0] == slot_mem[1] && slot_mem[0] == slot_mem[2])
+		  if (memRead[0] == memRead[1] && memRead[0] == memRead[2])
 		  {
 			  uint8_t text[] = "You're Winner!!";
 			  HAL_UART_Transmit_DMA(&hlpuart1, text, sizeof(text));
