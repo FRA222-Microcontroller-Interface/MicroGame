@@ -113,7 +113,7 @@ int main(void)
   uint8_t newline[] = "\r\n";
   HAL_UART_Transmit(&hlpuart1, newline, sizeof(newline) - 1, 10);
 
-  uint8_t text[] = "Enter Difficulty from 1 - 3";
+  uint8_t text[] = "Enter Difficulty from 1 - 3 \r\n";
   HAL_UART_Transmit(&hlpuart1, text, 28, 10);
   /* USER CODE END 2 */
 
